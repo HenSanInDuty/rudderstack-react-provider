@@ -133,13 +133,6 @@ class RudderStackTracker {
     }
 
     const properties = {
-      url,
-      title: document.title,
-      referrer: document.referrer,
-      path: pathname,
-      search: window.location.search,
-      hash: window.location.hash,
-      source,
       ...common_properties,
     };
 

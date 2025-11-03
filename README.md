@@ -3,9 +3,9 @@
 <div align="center">
 
 [![npm version](https://badge.fury.io/js/rudderstack-react-provider.svg)](https://badge.fury.io/js/rudderstack-react-provider)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/HenSanInDuty/rudderstack-react-provider/blob/master/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
-[![GitHub](https://skillicons.dev/icons?i=github)](https://github.com/HenSanInDuty/rudderstack-react-provider)
+[![GitHub](https://img.shields.io/badge/git-red)](https://github.com/HenSanInDuty/rudderstack-react-provider)
 
 
 **A modern, type-safe React wrapper for RudderStack analytics with automatic event tracking**
@@ -269,7 +269,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-MIT © [Your Name](https://github.com/yourusername)
+MIT © [Trọng Nhân](https://github.com/HenSanInDuty/rudderstack-react-provider/blob/master/LICENSE)
 
 ---
 

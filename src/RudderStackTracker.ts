@@ -13,20 +13,52 @@
 'use client';
 import { RudderAnalytics } from "@rudderstack/analytics-js";
 
+
+/// Check Env
+const getEnvVar = (name: string): string | undefined => {
+  if (typeof process !== "undefined" && typeof process.env !== "undefined") {
+    if (process.env[name]) {
+      return process.env[name] as string;
+    }
+
+    const reactKey = `REACT_APP_${name}`;
+    if (process.env[reactKey]) {
+      return process.env[reactKey] as string;
+    }
+
+    const viteKey = `VITE_${name}`;
+    if (process.env[viteKey]) {
+      return process.env[viteKey] as string;
+    }
+  }
+
+  if (typeof window !== "undefined" && (window as any).__RUDDERSTACK_CONFIG__) {
+    const conf = (window as any).__RUDDERSTACK_CONFIG__;
+    if (conf[name] != null) return conf[name];
+  }
+
+  return undefined;
+};
+
 const common_properties = {
-  game_id: process.env.RUDDERSTACK_GAME_ID || null,
-  project_id: process.env.RUDDERSTACK_PROJECT_ID || null,
+  game_id: getEnvVar("RUDDERSTACK_GAME_ID") || null,
+  project_id: getEnvVar("RUDDERSTACK_PROJECT_ID") || null,
 };
 
 // Mảng các URL cần tracking từ environment variables
-const trackedPages = process.env.RUDDERSTACK_TRACKED_PAGES 
-  ? process.env.RUDDERSTACK_TRACKED_PAGES.split(',').map(page => page.trim())
+const trackedPagesEnv = getEnvVar("RUDDERSTACK_TRACKED_PAGES");
+
+const trackedPages = trackedPagesEnv
+  ? trackedPagesEnv.split(",").map((page) => page.trim())
   : [];
 
-const showLog = process.env.RUDDERSTACK_LOG === "true";
+const showLog = getEnvVar("RUDDERSTACK_LOG") === "true";
 if (showLog) {
   console.log("RudderStack Logging is enabled");
-  console.log("Tracked pages source:", process.env.RUDDERSTACK_TRACKED_PAGES ? "environment" : "default");
+  console.log(
+    "Tracked pages source:",
+    getEnvVar("RUDDERSTACK_TRACKED_PAGES") ? "environment" : "default"
+  );
   console.log("Tracked pages:", trackedPages);
 }
 
@@ -59,9 +91,11 @@ class RudderStackTracker {
       }
       return false;
     }
+    const rudderKey = getEnvVar("RUDDERSTACK_KEY");
+    const rudderUrl = getEnvVar("RUDDERSTACK_URL");
 
     // Check for required environment variables
-    if (!process.env.RUDDERSTACK_KEY || !process.env.RUDDERSTACK_URL) {
+    if (!rudderKey || !rudderUrl) {
       if (showLog) {
         console.error(
           "RudderStack key or URL is not defined in environment variables."
@@ -79,10 +113,7 @@ class RudderStackTracker {
       }
     }
 
-    this.analyticsInstance.load(
-      process.env.RUDDERSTACK_KEY,
-      process.env.RUDDERSTACK_URL
-    );
+    this.analyticsInstance.load(rudderKey, rudderUrl);
 
     // Wait until RudderStack is ready
     return new Promise((resolve) => {

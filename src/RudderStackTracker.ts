@@ -1,6 +1,6 @@
 /**
  * RudderStack Tracking System
- * 
+ *
  * Environment Variables:
  * - RUDDERSTACK_KEY: RudderStack write key
  * - RUDDERSTACK_URL: RudderStack data plane URL
@@ -10,45 +10,45 @@
  * - RUDDERSTACK_TRACKED_PAGES: Comma-separated list of pages to track
  *   Example: "/,/tim-kiem,/xem-truoc,/[slug]"
  */
-'use client';
+"use client";
 import { RudderAnalytics } from "@rudderstack/analytics-js";
-
+import { getEnvVar } from "./env.util";
 
 /// Check Env
-const getEnvVar = (name: string): string | undefined => {
-  if (typeof process !== "undefined" && typeof process.env !== "undefined") {
-    if (process.env[name]) {
-      return process.env[name] as string;
-    }
+// const getEnvVar = (name: string): string | undefined => {
+//   if (typeof process !== "undefined" && typeof process.env !== "undefined") {
+//     if (process.env[name]) {
+//       return process.env[name] as string;
+//     }
 
-    const reactKey = `REACT_APP_${name}`;
-    if (process.env[reactKey]) {
-      return process.env[reactKey] as string;
-    }
+//     const reactKey = `REACT_APP_${name}`;
+//     if (process.env[reactKey]) {
+//       return process.env[reactKey] as string;
+//     }
 
-    const viteKey = `VITE_${name}`;
-    if (process.env[viteKey]) {
-      return process.env[viteKey] as string;
-    }
-  }
+//     const viteKey = `VITE_${name}`;
+//     if (process.env[viteKey]) {
+//       return process.env[viteKey] as string;
+//     }
+//   }
 
-  if (typeof window !== "undefined" && (window as any).__RUDDERSTACK_CONFIG__) {
-    const conf = (window as any).__RUDDERSTACK_CONFIG__;
-    if (conf[name] != null) return conf[name];
-  }
+//   if (typeof window !== "undefined" && (window as any).__RUDDERSTACK_CONFIG__) {
+//     const conf = (window as any).__RUDDERSTACK_CONFIG__;
+//     if (conf[name] != null) return conf[name];
+//   }
 
-  return undefined;
-};
+//   return undefined;
+// };
 
 const common_properties = {
-  game_id: getEnvVar("RUDDERSTACK_GAME_ID") || null,
-  project_id: getEnvVar("RUDDERSTACK_PROJECT_ID") || null,
+  game_id: getEnvVar("RUDDERSTACK_GAME_ID") || process.env.RUDDERSTACK_GAME_ID || null,
+  project_id: getEnvVar("RUDDERSTACK_PROJECT_ID") || process.env.RUDDERSTACK_PROJECT_ID || null,
 };
 
 // Mảng các URL cần tracking từ environment variables
-const trackedPagesEnv = getEnvVar("RUDDERSTACK_TRACKED_PAGES");
+const trackedPagesEnv = getEnvVar("RUDDERSTACK_TRACKED_PAGES") || process.env.RUDDERSTACK_TRACKED_PAGES;
 
-const trackedPages = trackedPagesEnv
+const trackedPages = typeof trackedPagesEnv === "string"
   ? trackedPagesEnv.split(",").map((page) => page.trim())
   : [];
 
@@ -57,7 +57,7 @@ if (showLog) {
   console.log("RudderStack Logging is enabled");
   console.log(
     "Tracked pages source:",
-    getEnvVar("RUDDERSTACK_TRACKED_PAGES") ? "environment" : "default"
+    getEnvVar("RUDDERSTACK_TRACKED_PAGES") || process.env.RUDDERSTACK_TRACKED_PAGES ? "environment" : "default"
   );
   console.log("Tracked pages:", trackedPages);
 }
@@ -91,8 +91,8 @@ class RudderStackTracker {
       }
       return false;
     }
-    const rudderKey = getEnvVar("RUDDERSTACK_KEY");
-    const rudderUrl = getEnvVar("RUDDERSTACK_URL");
+    const rudderKey = getEnvVar("RUDDERSTACK_KEY") || process.env.RUDDERSTACK_KEY;
+    const rudderUrl = getEnvVar("RUDDERSTACK_URL") || process.env.RUDDERSTACK_URL;
 
     // Check for required environment variables
     if (!rudderKey || !rudderUrl) {
@@ -113,7 +113,7 @@ class RudderStackTracker {
       }
     }
 
-    this.analyticsInstance.load(rudderKey, rudderUrl);
+    this.analyticsInstance.load(rudderKey as string, rudderUrl as string);
 
     // Wait until RudderStack is ready
     return new Promise((resolve) => {
@@ -141,16 +141,16 @@ class RudderStackTracker {
     const pathname = new URL(url).pathname;
 
     // Kiểm tra xem pathname có trong danh sách cần tracking không
-    const shouldTrack = trackedPages.some(page => {
+    const shouldTrack = trackedPages.some((page) => {
       // Exact match cho các route cố định
       if (page === pathname) return true;
-      
+
       // Pattern matching cho dynamic routes
       if (pathname.startsWith("/") && pathname.match(/^\/[^\/]+$/)) {
         // Match dynamic routes như /[slug]
         return trackedPages.includes("/[slug]");
       }
-      
+
       return false;
     });
 
